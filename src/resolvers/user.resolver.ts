@@ -1,18 +1,21 @@
 import argon2 from 'argon2';
-import { SignInInput, SignUpInput, User } from '../schemas/user.schema';
 import {
-  Query,
-  Resolver,
-  Mutation,
   Arg,
   Ctx,
   Field,
+  Mutation,
   ObjectType,
+  Query,
+  Resolver,
 } from 'type-graphql';
+import { v4 as uuid } from 'uuid';
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
+import { SignInInput, SignUpInput, User } from '../schemas/user.schema';
+import { UserService } from '../services/user.service';
 import { MyContext } from '../types/context';
 import { FieldError } from '../types/error';
-import { UserService } from '../services/user.service';
 import { logger } from '../utils/logger';
+import { sendEmail } from '../utils/sendEmail';
 
 @ObjectType()
 class UserResponse {
@@ -98,9 +101,104 @@ export class UserResolver {
         ],
       };
     }
-    //@ts-ignore
-    req.session.userId = user.id;
+    // @ts-ignore
+    req.session.userId = user._id;
 
+    return { user };
+  }
+
+  @Mutation(() => Boolean)
+  async signOut(@Ctx() { req, res }: MyContext): Promise<boolean> {
+    return new Promise((resolve) => {
+      res.clearCookie(COOKIE_NAME);
+      req.session.destroy((err) => {
+        if (err) {
+          logger.error(err);
+          resolve(false);
+        }
+        resolve(true);
+      });
+    });
+  }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg('email') email: string,
+    @Ctx() { redisClient }: MyContext
+  ): Promise<Boolean> {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) return true;
+
+    const token = uuid();
+
+    await redisClient.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user._id,
+      'EX',
+      1000 * 60 * 60 * 24 * 3 //3 day expiration
+    );
+
+    await sendEmail(
+      email,
+      `
+        <a href="http://localhost:3000/auth/changePassword/${token}">reset password</a>
+      `
+    );
+
+    return true;
+  }
+
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg('token') token: string,
+    @Arg('newPassword') newPassword: string,
+    @Ctx() { req, redisClient }: MyContext
+  ): Promise<UserResponse> {
+    if (newPassword.length < 4) {
+      return {
+        errors: [
+          {
+            field: 'newPassword',
+            message: 'password must be at least 4 characters long',
+          },
+        ],
+      };
+    }
+    const userId = await redisClient.get(FORGET_PASSWORD_PREFIX + token);
+
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: 'token',
+            message: 'token expired',
+          },
+        ],
+      };
+    }
+
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: 'token',
+            message: 'user no longer exists',
+          },
+        ],
+      };
+    }
+
+    const hashedPassword = await argon2.hash(newPassword);
+
+    await this.userService.updateUser(user._id, { password: hashedPassword });
+
+    await redisClient.del(FORGET_PASSWORD_PREFIX + token);
+
+    //@ts-ignore
+    req.session.userId = user._id;
     return { user };
   }
 }

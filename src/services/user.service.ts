@@ -12,4 +12,8 @@ export class UserService {
   async findById(id: string): Promise<User | null> {
     return UserModel.findById(id).lean();
   }
+
+  async updateUser(id: string, properties: Partial<User>) {
+    return UserModel.findByIdAndUpdate(id, properties, { new: false }).lean();
+  }
 }
