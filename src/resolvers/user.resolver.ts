@@ -3,14 +3,20 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from 'type-graphql';
 import { v4 as uuid } from 'uuid';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
 import { SignInInput, SignUpInput, User } from '../schemas/user.schema';
+import { ExperienceService } from '../services/experience.service';
+import { ProjectService } from '../services/project.service';
+import { SocialLinksService } from '../services/social.service';
+import { TechService } from '../services/tech.service';
 import { UserService } from '../services/user.service';
 import { MyContext } from '../types/context';
 import { FieldError } from '../types/error';
@@ -31,10 +37,40 @@ class UserResponse {
   errors?: FieldError[];
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
-  constructor(private userService: UserService) {
+  constructor(
+    private userService: UserService,
+    private techService: TechService,
+    private projectService: ProjectService,
+    private experienceService: ExperienceService,
+    private socialLinkService: SocialLinksService
+  ) {
     this.userService = new UserService();
+    this.techService = new TechService();
+    this.projectService = new ProjectService();
+    this.experienceService = new ExperienceService();
+    this.socialLinkService = new SocialLinksService();
+  }
+
+  @FieldResolver()
+  async techList(@Root() user: User) {
+    return this.techService.findTechListByUserId(user._id);
+  }
+
+  @FieldResolver()
+  async projectList(@Root() user: User) {
+    return this.projectService.findProjectListByUserId(user._id);
+  }
+
+  @FieldResolver()
+  async experienceList(@Root() user: User) {
+    return this.experienceService.findExperiencesByUserId(user._id);
+  }
+
+  @FieldResolver()
+  async socialLinks(@Root() user: User) {
+    return this.socialLinkService.findSocialLinksByUserId(user._id);
   }
 
   @Query(() => User, { nullable: true })

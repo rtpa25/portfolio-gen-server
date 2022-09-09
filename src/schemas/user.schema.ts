@@ -2,6 +2,10 @@ import { getModelForClass, Index, pre, prop } from '@typegoose/typegoose';
 import { hash } from 'argon2';
 import { IsEmail, MaxLength, MinLength } from 'class-validator';
 import { Field, InputType, ObjectType } from 'type-graphql';
+import { Experience } from './experience.schema';
+import { Project } from './project.schema';
+import { SocialLinks } from './social.schema';
+import { Tech } from './tech.schema';
 
 @ObjectType()
 @pre<User>('save', async function () {
@@ -26,8 +30,27 @@ export class User {
   @prop({ required: true, default: Date.now() })
   createdAt: Date;
 
+  @Field(() => String)
+  @prop({
+    required: true,
+    default: 'https://i.ibb.co/3p0SPn6/default-avatar.jpg',
+  })
+  avatar: string;
+
   @prop({ required: true })
   password: string;
+
+  @Field(() => [Tech])
+  techList: Tech[];
+
+  @Field(() => [Project])
+  projectList: Project[];
+
+  @Field(() => [Experience])
+  experienceList: Experience[];
+
+  @Field(() => [SocialLinks])
+  socialLinks: SocialLinks[];
 }
 
 export const UserModel = getModelForClass(User);
@@ -35,7 +58,12 @@ export const UserModel = getModelForClass(User);
 @InputType()
 export class SignUpInput {
   @Field(() => String)
-  @IsEmail()
+  @IsEmail(
+    {},
+    {
+      message: 'Email must be a valid email address',
+    }
+  )
   email: string;
 
   @Field(() => String)

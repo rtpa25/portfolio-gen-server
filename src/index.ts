@@ -14,6 +14,7 @@ import { resolvers } from './resolvers';
 import { MyContext } from './types/context';
 import { connectToDB } from './utils/connect';
 import { logger } from './utils/logger';
+import 'reflect-metadata';
 
 const bootStrap = async () => {
   const RedisStore = connectRedis(session);
