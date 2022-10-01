@@ -14,6 +14,13 @@ export class UserService {
   }
 
   async updateUser(id: string, properties: Partial<User>) {
-    return UserModel.findByIdAndUpdate(id, properties, { new: false }).lean();
+    const user = await UserModel.findById(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    Object.assign(user, properties);
+    await user.save();
+
+    return user;
   }
 }

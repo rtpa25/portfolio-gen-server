@@ -26,6 +26,18 @@ export class User {
   @prop({ required: true, unique: true })
   username: string;
 
+  @Field(() => String, { nullable: true })
+  @prop({ required: false, unique: false })
+  oneLiner: string;
+
+  @Field(() => String, { nullable: true })
+  @prop({ required: false, unique: false })
+  status: string;
+
+  @Field(() => String, { nullable: true })
+  @prop({ required: false, unique: false })
+  about: string;
+
   @Field(() => Date)
   @prop({ required: true, default: Date.now() })
   createdAt: Date;
@@ -41,15 +53,19 @@ export class User {
   password: string;
 
   @Field(() => [Tech])
+  @prop({ required: true, default: [], ref: 'Tech' })
   techList: Tech[];
 
   @Field(() => [Project])
+  @prop({ required: true, default: [], ref: 'Project' })
   projectList: Project[];
 
   @Field(() => [Experience])
+  @prop({ required: true, default: [], ref: 'Experience' })
   experienceList: Experience[];
 
   @Field(() => [SocialLinks])
+  @prop({ required: true, default: [], ref: 'SocialLinks' })
   socialLinks: SocialLinks[];
 }
 
@@ -87,4 +103,22 @@ export class SignInInput {
 
   @Field(() => String)
   password: string;
+}
+
+@InputType()
+export class UpdateUserProfileInput {
+  @Field(() => String, { nullable: true })
+  avatar?: string;
+
+  @Field(() => String, { nullable: true })
+  username?: string;
+
+  @Field(() => String, { nullable: true })
+  oneLiner?: string;
+
+  @Field(() => String, { nullable: true })
+  status?: string;
+
+  @Field(() => String, { nullable: true })
+  about?: string;
 }

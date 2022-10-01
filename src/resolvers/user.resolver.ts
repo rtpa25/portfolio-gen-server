@@ -9,10 +9,17 @@ import {
   Query,
   Resolver,
   Root,
+  UseMiddleware,
 } from 'type-graphql';
 import { v4 as uuid } from 'uuid';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
-import { SignInInput, SignUpInput, User } from '../schemas/user.schema';
+import { isAuth } from '../middlewares/isAuth';
+import {
+  SignInInput,
+  SignUpInput,
+  UpdateUserProfileInput,
+  User,
+} from '../schemas/user.schema';
 import { ExperienceService } from '../services/experience.service';
 import { ProjectService } from '../services/project.service';
 import { SocialLinksService } from '../services/social.service';
@@ -236,5 +243,34 @@ export class UserResolver {
     //@ts-ignore
     req.session.userId = user._id;
     return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  @UseMiddleware(isAuth)
+  async updateUserProfile(
+    @Arg('input') input: UpdateUserProfileInput,
+    @Ctx() { req }: MyContext
+  ): Promise<UserResponse> {
+    //@ts-ignore
+    const { userId } = req.session;
+    try {
+      const updatedUser = await this.userService.updateUser(userId, input);
+      updatedUser.techList = await this.techList(updatedUser);
+      updatedUser.projectList = await this.projectList(updatedUser);
+      updatedUser.experienceList = await this.experienceList(updatedUser);
+      updatedUser.socialLinks = await this.socialLinks(updatedUser);
+      console.log(updatedUser.socialLinks);
+
+      if (updatedUser) {
+        return {
+          user: updatedUser,
+        };
+      } else {
+        return { errors: [{ field: 'user', message: 'no such user found' }] };
+      }
+    } catch (error) {
+      logger.error(error);
+      return { errors: [{ field: 'unknown', message: error.message }] };
+    }
   }
 }
