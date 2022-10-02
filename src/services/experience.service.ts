@@ -17,7 +17,9 @@ export class ExperienceService {
   }
 
   async findExperiencesByUserId(userId: string): Promise<Experience[]> {
-    return ExperienceModel.find({ user: userId }).lean();
+    return ExperienceModel.find({ user: userId })
+      .sort({ from: 'descending' })
+      .lean();
   }
 
   async findExperienceById(expId: string): Promise<Experience> {

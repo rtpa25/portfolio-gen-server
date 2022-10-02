@@ -111,7 +111,7 @@ export class ExperienceResolver {
       };
     }
 
-    if (exp.user?.toString() === userId) {
+    if (exp.user?.toString() !== userId) {
       return { errors: [{ field: 'experience', message: 'not authorized' }] };
     }
 
@@ -139,7 +139,7 @@ export class ExperienceResolver {
       return false;
     }
 
-    if (exp.user !== userId) return false;
+    if (exp.user?.toString() !== userId) return false;
 
     try {
       await this.experienceService.deleteExperience(expId);
