@@ -129,6 +129,7 @@ export class TechResolver {
     @Arg('techId') techId: string,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
+    if (!techId) return false;
     const tech = await this.techService.findTechById(techId);
     //@ts-ignore
     const { userId } = req.session;

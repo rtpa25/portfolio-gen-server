@@ -255,11 +255,6 @@ export class UserResolver {
     const { userId } = req.session;
     try {
       const updatedUser = await this.userService.updateUser(userId, input);
-      updatedUser.techList = await this.techList(updatedUser);
-      updatedUser.projectList = await this.projectList(updatedUser);
-      updatedUser.experienceList = await this.experienceList(updatedUser);
-      updatedUser.socialLinks = await this.socialLinks(updatedUser);
-      console.log(updatedUser.socialLinks);
 
       if (updatedUser) {
         return {
