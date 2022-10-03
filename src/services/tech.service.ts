@@ -27,6 +27,7 @@ export class TechService {
     if (input.imageUrl) tech.imageUrl = input.imageUrl;
 
     await tech.save();
+
     return tech;
   }
   async deleteTech(techId: string): Promise<Tech> {

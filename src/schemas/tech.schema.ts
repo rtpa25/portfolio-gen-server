@@ -65,17 +65,8 @@ export class UpdateTechInput {
   _id: string;
 
   @Field(() => String, { nullable: true })
-  @IsUrl(
-    {},
-    {
-      message: 'imageUrl must be a valid URL',
-    }
-  )
   imageUrl?: string;
 
   @Field(() => String, { nullable: true })
-  @IsString({
-    groups: ['beginner', 'intermediate', 'advanced'],
-  })
   proficiency?: 'beginner' | 'intermediate' | 'advanced';
 }

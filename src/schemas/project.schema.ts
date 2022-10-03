@@ -77,6 +77,9 @@ export class UpdateProjectInput {
   @Field(() => String, { nullable: true })
   demo: string;
 
+  @Field(() => String, { nullable: true })
+  github: string;
+
   @Field(() => [String], { nullable: true })
   tech: string[];
 

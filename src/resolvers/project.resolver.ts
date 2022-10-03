@@ -108,7 +108,7 @@ export class ProjectResolver {
       };
     }
 
-    if (project.user?.toString() === userId) {
+    if (project.user?.toString() !== userId) {
       return { errors: [{ field: 'project', message: 'not authorized' }] };
     }
 
@@ -136,7 +136,7 @@ export class ProjectResolver {
       return false;
     }
 
-    if (project.user !== userId) return false;
+    if (project.user?.toString() !== userId) return false;
 
     try {
       await this.projectService.deleteProject(projectId);
