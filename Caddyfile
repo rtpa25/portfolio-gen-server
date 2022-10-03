@@ -1,5 +1,5 @@
-devfolioServer.ronit.pro{
-  reverse_proxy devfolioServer:4000 {
+devfolioserver.ronit.pro{
+  reverse_proxy devfolioserver:4000 {
     header_down Strict-Transport-Security max-age=31536000;
   }
 }

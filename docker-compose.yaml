@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   devfolioserver:
-    container_name: devfolioServer
+    container_name: devfolioserver
     restart: unless-stopped
     environment:
       - NODE_ENV=production
