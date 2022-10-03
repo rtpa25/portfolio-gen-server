@@ -92,6 +92,11 @@ export class UserResolver {
     return this.userService.findById(userId);
   }
 
+  @Query(() => User, { nullable: true })
+  async userProfile(@Arg('id') id: string): Promise<User | null> {
+    return this.userService.findById(id);
+  }
+
   @Mutation(() => UserResponse)
   async signUp(
     @Arg('input') input: SignUpInput,
