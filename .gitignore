@@ -1,7 +1,8 @@
 node_modules
 
-/.env.*/
+.env
 
 dist
 
 dump.todo
+

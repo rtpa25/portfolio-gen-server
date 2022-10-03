@@ -5,24 +5,25 @@ import {
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
+import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
 import Redis from 'ioredis';
+import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { COOKIE_NAME, __prod__ } from './constants';
 import { resolvers } from './resolvers';
 import { MyContext } from './types/context';
 import { connectToDB } from './utils/connect';
 import { logger } from './utils/logger';
-import 'reflect-metadata';
 
 const bootStrap = async () => {
   const RedisStore = connectRedis(session);
 
   const redisClient = new Redis({
-    port: 16275,
-    host: 'redis-16275.c10.us-east-1-4.ec2.cloud.redislabs.com',
-    password: 'DBE4DToiw1FtizgR45ZPdnnb0FhWU8gG',
+    port: process.env.REDIS_PORT as unknown as number,
+    host: process.env.REDIS_HOST,
+    password: process.env.REDIS_PASSWORD,
     connectTimeout: 10000,
   });
 
@@ -49,7 +50,7 @@ const bootStrap = async () => {
         sameSite: 'lax',
       },
       saveUninitialized: false,
-      secret: 'kdjgvhbwrofhdiwofadsi',
+      secret: process.env.COOKIE_SECRET as string,
       resave: false,
     })
   );
