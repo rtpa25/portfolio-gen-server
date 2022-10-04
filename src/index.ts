@@ -31,7 +31,7 @@ const bootStrap = async () => {
 
   app.use(
     cors({
-      origin: 'http://localhost:3000',
+      origin: ['http://localhost:3000', 'https://devfolio.ronit.pro'],
       credentials: true,
     })
   );
