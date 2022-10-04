@@ -1,27 +1,28 @@
 version: '3.7'
-
 services:
-  gqlserver:
-    container_name: gqlserver
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-    build: 
-        context: ./
+    # Run the node application
+    gqlserver:
+        container_name: gqlserver
+        restart: unless-stopped
+        environment: 
+            - NODE_ENV=production
+        build:
+            context: ./
 
-  caddy:
-    image: caddy/caddy:2.2.1-alpine
-    container_name: caddy-service
-    restart: unless-stopped
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-    - $PWD/Caddyfile:/etc/caddy/Caddyfile
-    - $PWD/site:/srv
-    - caddy_data:/data
-    - caddy_config:/config
+    # Run the caddy server        
+    caddy:
+        image: caddy/caddy:2.2.1-alpine
+        container_name: caddy-service
+        restart: unless-stopped
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:            
+        - $PWD/Caddyfile:/etc/caddy/Caddyfile
+        - $PWD/site:/srv
+        - caddy_data:/data
+        - caddy_config:/config
 
 volumes:
   caddy_data:
-  caddy_config:
+  caddy_config: 
