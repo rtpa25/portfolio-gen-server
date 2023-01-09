@@ -5,9 +5,9 @@ import { TechResolver } from './tech.resolver';
 import { UserResolver } from './user.resolver';
 
 export const resolvers = [
-  UserResolver,
-  TechResolver,
-  ProjectResolver,
-  ExperienceResolver,
-  SocialLinkResolver,
+    UserResolver,
+    TechResolver,
+    ProjectResolver,
+    ExperienceResolver,
+    SocialLinkResolver,
 ] as const;
